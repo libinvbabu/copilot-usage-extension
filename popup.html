@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Copilot Pace — Settings</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <span class="header-icon">⚡</span>
+      <div>
+        <div class="title">Copilot Pace</div>
+        <div class="subtitle">Premium Request Tracker</div>
+      </div>
+    </div>
+
+    <section class="section">
+      <div class="section-label">Working Days</div>
+      <div class="section-hint">Only selected days count toward your monthly pace calculation.</div>
+      <div class="days-grid">
+        <label class="day-chip">
+          <input type="checkbox" name="day" value="1" checked />
+          <span>Mon</span>
+        </label>
+        <label class="day-chip">
+          <input type="checkbox" name="day" value="2" checked />
+          <span>Tue</span>
+        </label>
+        <label class="day-chip">
+          <input type="checkbox" name="day" value="3" checked />
+          <span>Wed</span>
+        </label>
+        <label class="day-chip">
+          <input type="checkbox" name="day" value="4" checked />
+          <span>Thu</span>
+        </label>
+        <label class="day-chip">
+          <input type="checkbox" name="day" value="5" checked />
+          <span>Fri</span>
+        </label>
+        <label class="day-chip">
+          <input type="checkbox" name="day" value="6" />
+          <span>Sat</span>
+        </label>
+        <label class="day-chip">
+          <input type="checkbox" name="day" value="0" />
+          <span>Sun</span>
+        </label>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button id="save-btn" class="btn-primary">Save</button>
+      <span id="status" class="status" aria-live="polite"></span>
+    </div>
+
+    <div class="footer">
+      Visit <strong>github.com/settings/copilot/features</strong> to see the pace card.
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
