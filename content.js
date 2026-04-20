@@ -110,18 +110,109 @@
       }
 
       #${CARD_ID} .cpp-bar-wrap { margin-bottom: 16px; }
+      #${CARD_ID} .cpp-bar-progress {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 12px; margin-bottom: 8px; font-size: 12px; color: #8b949e;
+      }
+      #${CARD_ID} .cpp-bar-progress strong {
+        color: #c9d1d9; font-weight: 600;
+      }
       #${CARD_ID} .cpp-bar {
-        position: relative; height: 12px; background: #21262d;
-        border: 1px solid #30363d; border-radius: 6px; overflow: hidden;
+        --cpp-day-count: 1;
+        --cpp-day-width: calc(100% / var(--cpp-day-count));
+        position: relative; height: 14px;
+        background: linear-gradient(180deg, #20262e 0%, #161b22 100%);
+        border: 1px solid #30363d; border-radius: 999px; overflow: hidden;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+      }
+      #${CARD_ID} .cpp-bar-elapsed {
+        position: absolute; left: 0; top: 0; height: 100%; width: 0;
+        background: linear-gradient(90deg, rgba(110,118,129,0.18) 0%, rgba(110,118,129,0.08) 100%);
+        z-index: 1;
       }
       #${CARD_ID} .cpp-bar-fill {
         position: absolute; left: 0; top: 0; height: 100%; width: 0;
-        background: #1f6feb; border-radius: 4px;
+        background: linear-gradient(90deg, #1f6feb 0%, #58a6ff 100%);
+        border-top-left-radius: 999px; border-bottom-left-radius: 999px; z-index: 2;
+      }
+      #${CARD_ID} .cpp-bar-grid {
+        position: absolute; inset: 0;
+        background-image: repeating-linear-gradient(
+          to right,
+          transparent 0,
+          transparent calc(var(--cpp-day-width) - 1px),
+          rgba(240,246,252,0.12) calc(var(--cpp-day-width) - 1px),
+          rgba(240,246,252,0.12) var(--cpp-day-width)
+        );
+        z-index: 3; pointer-events: none;
+      }
+      #${CARD_ID} .cpp-bar-gap {
+        position: absolute; top: 1px; bottom: 1px; left: 0; width: 0;
+        border: 1px solid transparent;
+        pointer-events: none; z-index: 4;
+      }
+      #${CARD_ID} .cpp-bar-gap.to-right {
+        border-radius: 0 999px 999px 0;
+      }
+      #${CARD_ID} .cpp-bar-gap.to-left {
+        border-radius: 999px 0 0 999px;
+      }
+      #${CARD_ID} .cpp-bar-gap.behind {
+        background: repeating-linear-gradient(
+          135deg,
+          rgba(63,185,80,0.22) 0,
+          rgba(63,185,80,0.22) 6px,
+          rgba(63,185,80,0.08) 6px,
+          rgba(63,185,80,0.08) 12px
+        );
+      }
+      #${CARD_ID} .cpp-bar-gap.track {
+        background: repeating-linear-gradient(
+          135deg,
+          rgba(240,246,252,0.18) 0,
+          rgba(240,246,252,0.18) 6px,
+          rgba(240,246,252,0.08) 6px,
+          rgba(240,246,252,0.08) 12px
+        );
+        border-color: rgba(240,246,252,0.25);
+      }
+      #${CARD_ID} .cpp-bar-gap.ahead {
+        background: repeating-linear-gradient(
+          135deg,
+          rgba(210,153,34,0.24) 0,
+          rgba(210,153,34,0.24) 6px,
+          rgba(210,153,34,0.09) 6px,
+          rgba(210,153,34,0.09) 12px
+        );
+        border-color: rgba(210,153,34,0.35);
+      }
+      #${CARD_ID} .cpp-bar-gap.high {
+        background: repeating-linear-gradient(
+          135deg,
+          rgba(248,81,73,0.26) 0,
+          rgba(248,81,73,0.26) 6px,
+          rgba(248,81,73,0.1) 6px,
+          rgba(248,81,73,0.1) 12px
+        );
+        border-color: rgba(248,81,73,0.38);
+      }
+      #${CARD_ID} .cpp-bar-gap[hidden] {
+        display: none;
+      }
+      #${CARD_ID} .cpp-bar-today {
+        position: absolute; top: 1px; bottom: 1px; left: 0; width: 0;
+        border-radius: 999px;
+        background: linear-gradient(90deg, rgba(240,246,252,0.05) 0%, rgba(240,246,252,0.02) 100%);
+        box-shadow: inset 0 0 0 1px rgba(240,246,252,0.12);
+        z-index: 1; pointer-events: none;
+      }
+      #${CARD_ID} .cpp-bar-today[hidden] {
+        display: none;
       }
       #${CARD_ID} .cpp-bar-marker {
-        position: absolute; top: -1px; width: 3px; height: 14px; left: 0;
-        background: #f0f6fc; box-shadow: 0 0 2px rgba(0,0,0,0.5);
-        transform: translateX(-50%); z-index: 2;
+        position: absolute; top: -1px; width: 4px; height: 14px; left: 0;
+        background: #f0f6fc; box-shadow: 0 0 0 1px rgba(13,17,23,0.35), 0 0 6px rgba(240,246,252,0.18);
+        transform: translateX(-50%); z-index: 6;
       }
       #${CARD_ID} .cpp-bar-labels {
         display: flex; align-items: center; gap: 16px; margin-top: 6px;
@@ -271,9 +362,11 @@
       0, 1
     );
 
-    let totalWorkingDays     = 0;
-    let elapsedWorkingDays   = 0;
-    let remainingWorkingDays = 0;
+    let totalWorkingDays       = 0;
+    let elapsedWorkingDays     = 0;
+    let remainingWorkingDays   = 0;
+    let isTodayWorkingDay      = false;
+    let currentWorkingDayProgress = 0;
 
     for (let day = 1; day <= lastDay; day++) {
       const date = new Date(year, monthIndex, day);
@@ -286,12 +379,14 @@
       } else if (day > todayDate) {
         remainingWorkingDays += 1;
       } else {
-        elapsedWorkingDays   += dayProgress;
-        remainingWorkingDays += 1 - dayProgress;
+        isTodayWorkingDay        = true;
+        currentWorkingDayProgress = dayProgress;
+        elapsedWorkingDays       += dayProgress;
+        remainingWorkingDays     += 1 - dayProgress;
       }
     }
 
-    return { totalWorkingDays, elapsedWorkingDays, remainingWorkingDays };
+    return { totalWorkingDays, elapsedWorkingDays, remainingWorkingDays, isTodayWorkingDay, currentWorkingDayProgress };
   }
 
   // ── Core metrics ──────────────────────────────────────────────────────────
@@ -320,7 +415,9 @@
       paceGap:             round(paceGap),
       totalWorkingDays:    wdc.totalWorkingDays,
       elapsedWorkingDays:  wdc.elapsedWorkingDays,
-      remainingWorkingDays:wdc.remainingWorkingDays
+      remainingWorkingDays:wdc.remainingWorkingDays,
+      isTodayWorkingDay:   wdc.isTodayWorkingDay,
+      currentDayProgress:  round(wdc.currentWorkingDayProgress, 3)
     };
   }
 
@@ -594,10 +691,19 @@
     const secondary = document.createElement('div'); secondary.className = 'cpp-secondary';
 
     const barWrap = document.createElement('div'); barWrap.className = 'cpp-bar-wrap';
+    const barProgress = document.createElement('div'); barProgress.className = 'cpp-bar-progress';
+    const dayElapsed = document.createElement('div');
+    const dayRemaining = document.createElement('div');
+    barProgress.append(dayElapsed, dayRemaining);
+
     const bar = document.createElement('div'); bar.className = 'cpp-bar';
+    const barElapsed = document.createElement('div'); barElapsed.className = 'cpp-bar-elapsed';
     const barFill = document.createElement('div'); barFill.className = 'cpp-bar-fill';
+    const barGrid = document.createElement('div'); barGrid.className = 'cpp-bar-grid';
+    const barGap = document.createElement('div'); barGap.className = 'cpp-bar-gap';
+    const barToday = document.createElement('div'); barToday.className = 'cpp-bar-today';
     const barMarker = document.createElement('div'); barMarker.className = 'cpp-bar-marker';
-    bar.append(barFill, barMarker);
+    bar.append(barElapsed, barFill, barGrid, barGap, barToday, barMarker);
 
     const barLabels = document.createElement('div'); barLabels.className = 'cpp-bar-labels';
     const labelUsed = document.createElement('div');
@@ -608,7 +714,7 @@
     barStamp.style.cssText = 'margin-left:auto;font-size:11px;color:#6e7681;';
     
     barLabels.append(labelUsed, labelTarget, barStamp);
-    barWrap.append(bar, barLabels);
+    barWrap.append(barProgress, bar, barLabels);
 
     const primaryGrid = document.createElement('div'); primaryGrid.className = 'cpp-primary-grid';
     const secondaryList = document.createElement('div'); secondaryList.className = 'cpp-secondary-metrics';
@@ -659,7 +765,24 @@
 
     card.append(header, primary, secondary, barWrap, primaryGrid, secondaryList, footerWrap);
 
-    return { card, pill, summaryText, primary, secondary, barFill, barMarker, barStamp, metrics: metricRefs, settingsBtn };
+    return {
+      card,
+      pill,
+      summaryText,
+      primary,
+      secondary,
+      bar,
+      barElapsed,
+      barFill,
+      barGap,
+      barToday,
+      barMarker,
+      barStamp,
+      dayElapsed,
+      dayRemaining,
+      metrics: metricRefs,
+      settingsBtn
+    };
   }
 
   function ensureCard(section) {
@@ -696,10 +819,20 @@
     refs.pill.textContent  = 'Waiting for data';
     refs.primary.textContent  = 'Unable to read current premium request usage';
     refs.secondary.textContent = message;
+    refs.bar.style.setProperty('--cpp-day-count', '1');
+    refs.barElapsed.style.width = '0%';
     refs.barFill.style.width   = '0%';
+    refs.barGap.hidden         = true;
+    refs.barGap.className      = 'cpp-bar-gap';
+    refs.barGap.style.width    = '0%';
+    refs.barToday.hidden       = true;
+    refs.barToday.style.width  = '0%';
     refs.barMarker.style.left  = '0%';
     refs.barMarker.title       = '';
     refs.barFill.title         = '';
+    refs.bar.title             = '';
+    refs.dayElapsed.innerHTML  = '<strong>--</strong> working days elapsed';
+    refs.dayRemaining.innerHTML = '-- left';
     refs.barStamp.textContent  = `Rendered ${renderedAt}`;
     Object.values(refs.metrics).forEach((m) => setMetric(m, '--'));
     refs.summaryText.textContent = `Working days: ${getCompactCalendarSummary()}`;
@@ -723,11 +856,39 @@
     
     const usedPct = clamp(metrics.actualUsed, 0, 100);
     const targetPct = clamp(metrics.idealByNow, 0, 100);
+    const totalDays = Math.max(metrics.totalWorkingDays, 1);
+    const elapsedDays = clamp(metrics.elapsedWorkingDays, 0, totalDays);
+    const elapsedPct = totalDays > 0 ? (elapsedDays / totalDays) * 100 : 0;
+    const completedDays = Math.floor(elapsedDays);
+    const hasCurrentDay = Boolean(metrics.isTodayWorkingDay);
+    const todayLeftPct = totalDays > 0 ? (completedDays / totalDays) * 100 : 0;
+    const todayWidthPct = totalDays > 0 ? (100 / totalDays) : 0;
+    const gapStartPct = Math.min(usedPct, targetPct);
+    const gapWidthPct = Math.abs(targetPct - usedPct);
+    const gapDirectionClass = targetPct >= usedPct ? 'to-right' : 'to-left';
     
+    refs.bar.style.setProperty('--cpp-day-count', String(totalDays));
+    refs.barElapsed.style.width = `${elapsedPct}%`;
     refs.barFill.style.width   = `${usedPct}%`;
+    refs.barGap.hidden         = gapWidthPct < 0.2;
+    refs.barGap.className      = `cpp-bar-gap ${gapTone} ${gapDirectionClass}`;
+    refs.barGap.style.left     = `${gapStartPct}%`;
+    refs.barGap.style.width    = `${gapWidthPct}%`;
+    refs.barGap.title          = `Pace gap: ${formatSignedPercent(metrics.paceGap)}`;
+    refs.barToday.hidden       = !hasCurrentDay;
+    if (hasCurrentDay) {
+      refs.barToday.style.left = `${todayLeftPct}%`;
+      refs.barToday.style.width = `${todayWidthPct}%`;
+      refs.barToday.title = `Today: ${formatWorkingDays(metrics.currentDayProgress)} of 1 working day elapsed`;
+    } else {
+      refs.barToday.title = '';
+    }
     refs.barMarker.style.left  = `${targetPct}%`;
     refs.barMarker.title       = `Target now: ${formatPercent(metrics.idealByNow)}`;
     refs.barFill.title         = `Used: ${formatPercent(metrics.actualUsed)}`;
+    refs.bar.title             = `${formatWorkingDays(metrics.elapsedWorkingDays)} of ${formatWorkingDays(metrics.totalWorkingDays)} working days elapsed`;
+    refs.dayElapsed.innerHTML  = `<strong>${formatWorkingDays(metrics.elapsedWorkingDays)}</strong> of ${formatWorkingDays(metrics.totalWorkingDays)} working days elapsed`;
+    refs.dayRemaining.innerHTML = `${formatWorkingDays(metrics.remainingWorkingDays)} days left`;
     refs.barStamp.textContent  = `Rendered ${renderedAt}`;
 
     setMetric(refs.metrics.used,        formatPercent(metrics.actualUsed));
