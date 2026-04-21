@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="icons/icon128.png" alt="GitHub Copilot Premium Request Pace icon" width="96" height="96" />
+  <img src="icons/new-icon.png" alt="GitHub Copilot Premium Request Pace icon" width="96" height="96" />
 </p>
 
 <h1 align="center">GitHub Copilot Premium Request Pace</h1>
